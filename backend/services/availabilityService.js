@@ -3,7 +3,7 @@ import { slotsOverlap, parseDate } from "../utils/time.js";
 
 const isCourtAvailable = (courtId, date, startTime, endTime, bookings) => {
   return !bookings.some(
-    (b) => b.courtId === courtId && b.date === date && slotsOverlap(b.startTime, b.endTime, startTime, endTime)
+    (b) => b.status !== "cancelled" && b.courtId === courtId && b.date === date && slotsOverlap(b.startTime, b.endTime, startTime, endTime)
   );
 };
 
@@ -18,7 +18,7 @@ const isCoachAvailable = (coach, date, startTime, endTime, bookings) => {
   });
   if (!withinSlot) return false;
   return !bookings.some(
-    (b) => b.coachId === coach.id && b.date === date && slotsOverlap(b.startTime, b.endTime, startTime, endTime)
+    (b) => b.status !== "cancelled" && b.coachId === coach.id && b.date === date && slotsOverlap(b.startTime, b.endTime, startTime, endTime)
   );
 };
 
@@ -27,6 +27,7 @@ const equipmentAvailability = (date, startTime, endTime, bookings, equipment) =>
     const reserved = bookings
       .filter(
         (b) =>
+          b.status !== "cancelled" &&
           b.date === date &&
           slotsOverlap(b.startTime, b.endTime, startTime, endTime)
       )

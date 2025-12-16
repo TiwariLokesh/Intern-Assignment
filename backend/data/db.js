@@ -5,7 +5,8 @@ const db = {
   equipment: [...seedEquipment],
   coaches: [...seedCoaches],
   pricingRules: [...seedPricingRules],
-  bookings: [...seedBookings]
+  bookings: [...seedBookings],
+  waitlist: []
 };
 
 export const getDb = () => db;
@@ -16,4 +17,5 @@ export const resetDb = () => {
   db.coaches = [...seedCoaches];
   db.pricingRules = [...seedPricingRules];
   db.bookings = [];
+  db.waitlist = [];
 };

@@ -6,8 +6,11 @@ export const list = (req, res) => {
 };
 
 export const create = (req, res) => {
-  const { booking, error } = createBooking(req.body);
+  const { booking, error, waitlisted, entry, message } = createBooking(req.body);
   if (error) return res.status(400).json({ error });
+  if (waitlisted) {
+    return res.status(202).json({ waitlisted: true, entry, message });
+  }
   res.status(201).json(booking);
 };
 

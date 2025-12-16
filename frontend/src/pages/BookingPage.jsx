@@ -27,6 +27,22 @@ export default function BookingPage() {
   const [status, setStatus] = useState("");
   const [formErrors, setFormErrors] = useState([]); // kept for logic but not rendered inline
   const [toast, setToast] = useState({ message: "", tone: "info" });
+  const [joinWaitlist, setJoinWaitlist] = useState(true);
+  const slots = useMemo(
+    () =>
+      Array.from({ length: 15 }).map((_, idx) => {
+        const startHour = 6 + idx;
+        const endHour = startHour + 1;
+        const pad = (n) => String(n).padStart(2, "0");
+        return {
+          label: `${pad(startHour)}:00 - ${pad(endHour)}:00`,
+          start: `${pad(startHour)}:00`,
+          end: `${pad(endHour)}:00`
+        };
+      }),
+    []
+  );
+  const [slotAvailability, setSlotAvailability] = useState([]);
 
   const loadAvailability = async () => {
     if (!form.date || !form.startTime || !form.endTime) return;
@@ -56,6 +72,22 @@ export default function BookingPage() {
   useEffect(() => {
     loadAvailability();
   }, [form.date, form.startTime, form.endTime]);
+
+  useEffect(() => {
+    const loadSlotGrid = async () => {
+      const rows = await Promise.all(
+        slots.map(async (slot) => {
+          const data = await fetchAvailability({ date: form.date, startTime: slot.start, endTime: slot.end });
+          return {
+            ...slot,
+            courtsAvailable: data.courts.filter((c) => c.available).length
+          };
+        })
+      );
+      setSlotAvailability(rows);
+    };
+    loadSlotGrid();
+  }, [form.date, slots]);
 
   useEffect(() => {
     if (selectedCourt) refreshPrice();
@@ -107,14 +139,21 @@ export default function BookingPage() {
         ...form,
         courtId: selectedCourt,
         coachId: selectedCoach || null,
-        equipmentItems
+        equipmentItems,
+        joinWaitlist
       };
       const booking = await createBooking(payload);
-      setStatus(`Booking confirmed: ${booking.id}`);
-      setPrice(booking.price);
-      setForm((f) => ({ ...f, userName: f.userName, userContact: f.userContact }));
-      setToast({ message: "Booking confirmed", tone: "success" });
-      setTimeout(() => setToast({ message: "", tone: "info" }), 2000);
+      if (booking?.waitlisted) {
+        setStatus("Added to waitlist for this slot");
+        setToast({ message: "Added to waitlist. We will auto-confirm if a spot opens.", tone: "success" });
+        setTimeout(() => setToast({ message: "", tone: "info" }), 2600);
+      } else {
+        setStatus(`Booking confirmed: ${booking.id}`);
+        setPrice(booking.price);
+        setForm((f) => ({ ...f, userName: f.userName, userContact: f.userContact }));
+        setToast({ message: "Booking confirmed", tone: "success" });
+        setTimeout(() => setToast({ message: "", tone: "info" }), 2000);
+      }
       loadBookings();
       loadAvailability();
     } catch (err) {
@@ -152,6 +191,35 @@ export default function BookingPage() {
             <span className="px-3 py-2 bg-white border border-slate-200 rounded-lg">3. Extras</span>
             <span className="px-3 py-2 bg-white border border-slate-200 rounded-lg">4. Confirm</span>
           </div>
+        </div>
+      </div>
+
+      <div className="card p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-semibold">Quick slot view</h3>
+            <p className="text-xs text-slate-500">Tap a slot to fill start/end automatically.</p>
+          </div>
+          <span className="text-xs text-slate-500">Date: {form.date}</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {slotAvailability.map((slot) => (
+            <button
+              key={slot.label}
+              type="button"
+              onClick={() => {
+                setForm((f) => ({ ...f, startTime: slot.start, endTime: slot.end }));
+              }}
+              className={`border rounded-lg px-3 py-2 text-left transition ${
+                form.startTime === slot.start && form.endTime === slot.end
+                  ? "border-primary bg-primary/5"
+                  : "border-slate-200 hover:border-primary/50"
+              }`}
+            >
+              <div className="text-sm font-semibold">{slot.label}</div>
+              <div className="text-xs text-slate-600">{slot.courtsAvailable} courts free</div>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -287,6 +355,15 @@ export default function BookingPage() {
                 placeholder="Email or phone"
               />
             </label>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={joinWaitlist}
+              onChange={(e) => setJoinWaitlist(e.target.checked)}
+            />
+            <span>Join waitlist automatically if this slot is full</span>
           </div>
 
           <div className="flex items-center justify-between">
