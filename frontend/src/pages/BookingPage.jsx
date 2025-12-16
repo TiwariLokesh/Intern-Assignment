@@ -25,6 +25,8 @@ export default function BookingPage() {
   const [price, setPrice] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [status, setStatus] = useState("");
+  const [formErrors, setFormErrors] = useState([]); // kept for logic but not rendered inline
+  const [toast, setToast] = useState({ message: "", tone: "info" });
 
   const loadAvailability = async () => {
     if (!form.date || !form.startTime || !form.endTime) return;
@@ -79,9 +81,27 @@ export default function BookingPage() {
 
   const availableCourts = useMemo(() => availability.courts?.filter((c) => c.available) || [], [availability]);
 
+  const validateForm = () => {
+    const errs = [];
+    if (!form.date) errs.push("Date is required");
+    if (!form.startTime || !form.endTime) errs.push("Start and end time are required");
+    if (!selectedCourt) errs.push("Please select a court");
+    if (!form.userName.trim()) errs.push("Please enter your name");
+    if (!form.userContact.trim()) errs.push("Please add a contact (email/phone)");
+    if (form.startTime && form.endTime && form.startTime >= form.endTime) errs.push("End time must be after start time");
+    setFormErrors(errs);
+    if (errs.length) {
+      setToast({ message: errs[0], tone: "error" });
+      // auto hide after a short duration
+      setTimeout(() => setToast({ message: "", tone: "info" }), 2600);
+    }
+    return errs.length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("");
+    if (!validateForm()) return;
     try {
       const payload = {
         ...form,
@@ -93,15 +113,31 @@ export default function BookingPage() {
       setStatus(`Booking confirmed: ${booking.id}`);
       setPrice(booking.price);
       setForm((f) => ({ ...f, userName: f.userName, userContact: f.userContact }));
+      setToast({ message: "Booking confirmed", tone: "success" });
+      setTimeout(() => setToast({ message: "", tone: "info" }), 2000);
       loadBookings();
       loadAvailability();
     } catch (err) {
       setStatus(err.response?.data?.error || "Failed to book");
+      setFormErrors([err.response?.data?.error || ""]);
+      setToast({ message: err.response?.data?.error || "Booking failed", tone: "error" });
+      setTimeout(() => setToast({ message: "", tone: "info" }), 2600);
     }
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {toast.message && (
+        <div
+          className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-xl shadow-lg border text-sm font-semibold ${
+            toast.tone === "error"
+              ? "bg-red-50 text-red-700 border-red-200"
+              : "bg-emerald-50 text-emerald-700 border-emerald-200"
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
       <div className="card p-4 lg:col-span-2 space-y-4">
         <h2 className="text-xl font-semibold">Book a court</h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
