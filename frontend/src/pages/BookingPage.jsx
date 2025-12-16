@@ -126,7 +126,7 @@ export default function BookingPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="space-y-4">
       {toast.message && (
         <div
           className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-xl shadow-lg border text-sm font-semibold ${
@@ -138,21 +138,40 @@ export default function BookingPage() {
           {toast.message}
         </div>
       )}
+
+      <div className="bg-gradient-to-r from-primary/10 via-white to-accent/10 border border-slate-200 rounded-2xl p-4 md:p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <p className="text-sm uppercase tracking-wide text-primary font-semibold">Fast booking</p>
+            <h1 className="text-2xl font-semibold text-ink">Pick a slot, see price live, confirm instantly</h1>
+            <p className="text-slate-600 text-sm">Follow the steps below. Required fields are marked with * and the price updates in real time.</p>
+          </div>
+          <div className="flex gap-2 text-xs font-semibold">
+            <span className="px-3 py-2 bg-white border border-slate-200 rounded-lg">1. Slot</span>
+            <span className="px-3 py-2 bg-white border border-slate-200 rounded-lg">2. Court</span>
+            <span className="px-3 py-2 bg-white border border-slate-200 rounded-lg">3. Extras</span>
+            <span className="px-3 py-2 bg-white border border-slate-200 rounded-lg">4. Confirm</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div className="card p-4 lg:col-span-2 space-y-4">
         <h2 className="text-xl font-semibold">Book a court</h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <label className="space-y-1">
-              <span className="text-sm text-slate-600">Date</span>
+              <span className="text-sm text-slate-600">Date *</span>
               <input
                 className="w-full border rounded-lg px-3 py-2"
                 type="date"
                 value={form.date}
                 onChange={(e) => setForm({ ...form, date: e.target.value })}
               />
+              <p className="text-xs text-slate-500">Pick the day you want to play.</p>
             </label>
             <label className="space-y-1">
-              <span className="text-sm text-slate-600">Start</span>
+              <span className="text-sm text-slate-600">Start *</span>
               <input
                 className="w-full border rounded-lg px-3 py-2"
                 type="time"
@@ -161,18 +180,22 @@ export default function BookingPage() {
               />
             </label>
             <label className="space-y-1">
-              <span className="text-sm text-slate-600">End</span>
+              <span className="text-sm text-slate-600">End *</span>
               <input
                 className="w-full border rounded-lg px-3 py-2"
                 type="time"
                 value={form.endTime}
                 onChange={(e) => setForm({ ...form, endTime: e.target.value })}
               />
+              <p className="text-xs text-slate-500">Pricing adjusts with duration.</p>
             </label>
           </div>
 
           <div>
-            <p className="text-sm text-slate-600 mb-2">Select court</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-slate-600">Select court *</p>
+              <p className="text-xs text-slate-500">Indoor = premium comfort</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {availableCourts.map((court) => (
                 <button
@@ -180,7 +203,9 @@ export default function BookingPage() {
                   key={court.id}
                   onClick={() => setSelectedCourt(court.id)}
                   className={`p-3 rounded-lg border text-left transition ${
-                    selectedCourt === court.id ? "border-primary bg-teal-50" : "border-slate-200"
+                    selectedCourt === court.id
+                      ? "border-primary bg-primary/5 shadow-sm"
+                      : "border-slate-200 hover:border-primary/60"
                   }`}
                 >
                   <div className="flex justify-between">
@@ -226,7 +251,9 @@ export default function BookingPage() {
                     disabled={!coach.available}
                     onClick={() => setSelectedCoach((prev) => (prev === coach.id ? "" : coach.id))}
                     className={`w-full text-left border rounded-lg p-3 transition ${
-                      selectedCoach === coach.id ? "border-accent bg-orange-50" : "border-slate-200"
+                      selectedCoach === coach.id
+                        ? "border-accent bg-orange-50 shadow-sm"
+                        : "border-slate-200 hover:border-accent/50"
                     } ${coach.available ? "" : "opacity-50"}`}
                   >
                     <div className="flex justify-between">
@@ -243,7 +270,7 @@ export default function BookingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <label className="space-y-1">
-              <span className="text-sm text-slate-600">Your name</span>
+              <span className="text-sm text-slate-600">Your name *</span>
               <input
                 className="w-full border rounded-lg px-3 py-2"
                 value={form.userName}
@@ -252,7 +279,7 @@ export default function BookingPage() {
               />
             </label>
             <label className="space-y-1">
-              <span className="text-sm text-slate-600">Contact</span>
+              <span className="text-sm text-slate-600">Contact *</span>
               <input
                 className="w-full border rounded-lg px-3 py-2"
                 value={form.userContact}
@@ -289,6 +316,7 @@ export default function BookingPage() {
             {!bookings.length && <p className="text-sm text-slate-500">No bookings yet.</p>}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
