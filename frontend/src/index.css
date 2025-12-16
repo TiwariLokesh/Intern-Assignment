@@ -1,0 +1,26 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #0f172a;
+  background-color: #f8fafc;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+.card {
+  @apply bg-white shadow-sm rounded-xl border border-slate-200;
+}
+
+.btn-primary {
+  @apply px-3 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-teal-700 transition;
+}
+
+.btn-ghost {
+  @apply px-3 py-2 text-ink rounded-lg hover:bg-slate-100 transition;
+}
