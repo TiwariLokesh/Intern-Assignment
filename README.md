@@ -7,6 +7,11 @@ Production-style full-stack demo for multi-resource badminton bookings with atom
 - Frontend: React (Vite), Tailwind CSS
 - API proxy: Vite dev proxy to Express
 
+## Deliverables Checklist
+- Repo with README (setup, deploy, assumptions) — this file.
+- Seed data for courts, equipment, coaches, pricing rules: [backend/data/seedData.js](backend/data/seedData.js).
+- Short write-up (DB design & pricing engine, ~300–500 words) — see section below.
+
 ## Quickstart
 1) Install deps
 ```bash
