@@ -9,6 +9,11 @@ app.use(cors());
 app.use(express.json());
 app.use("/api", routes);
 
+// simple root response for platform health checks
+app.get("/", (req, res) => {
+  res.send("Badminton booking API up. Try /api/health.");
+});
+
 app.use((err, req, res, next) => {
   console.error("Unhandled error", err);
   res.status(500).json({ error: "Something went wrong" });

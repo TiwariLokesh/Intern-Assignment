@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const client = axios.create({ baseURL: "/api" });
+const apiBase = import.meta.env.VITE_API_BASE || "/api";
+const client = axios.create({ baseURL: apiBase });
 
 export const fetchAvailability = (params) => client.get("/availability", { params }).then((r) => r.data);
 export const fetchPricingRules = () => client.get("/pricing-rules").then((r) => r.data);

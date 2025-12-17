@@ -25,6 +25,14 @@ npm run dev
 ```
 The frontend dev server proxies `/api` to `http://localhost:4000`.
 
+### Deploying the frontend (e.g., Vercel)
+- Root directory: `frontend`
+- Install: `npm install`
+- Build: `npm run build`
+- Output: `dist`
+- Env: set `VITE_API_BASE` to your deployed backend URL (e.g., `https://your-backend.example.com/api`). Without this, Vercel will call `/api` on the static host and return 404.
+- After setting the env var, trigger a fresh deploy so the build picks it up.
+
 ## Seed Data
 Courts (4), Equipment (rackets/shoes), Coaches (3 with availability), Pricing rules (peak, weekend, indoor premium, equipment fee, coach fee) are preloaded from [backend/data/seedData.js](backend/data/seedData.js).
 
